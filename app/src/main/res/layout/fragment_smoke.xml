@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_horizontal"
+    tools:context=".smoke.ui.Smoke">
+
+    <!-- Row for Day, Week, Month -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tvDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Day 0"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:id="@+id/tvWeek"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Week 0"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:id="@+id/tvMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Month 0" />
+    </LinearLayout>
+
+    <!-- Timer TextView -->
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Timer: 00:00:00"
+        android:layout_marginBottom="16dp"
+        android:textSize="24sp" />
+
+    <!-- Button at the bottom center -->
+    <Button
+        android:id="@+id/btnSmoke"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Smoke"
+        android:layout_gravity="center"
+        android:layout_marginBottom="32dp"
+        android:layout_weight="0" />
+
+</LinearLayout>
