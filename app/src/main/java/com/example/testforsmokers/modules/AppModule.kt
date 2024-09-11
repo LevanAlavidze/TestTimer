@@ -1,7 +1,8 @@
-package com.example.testforsmokers
+package com.example.testforsmokers.modules
 
 import android.app.Application
 import androidx.room.Room
+import com.example.testforsmokers.CigaretteDatabase
 import com.example.testforsmokers.smoke.data.CigaretteDao
 import com.example.testforsmokers.smoke.data.CounterUpdateDao
 import com.example.testforsmokers.smoke.data.TimerDao

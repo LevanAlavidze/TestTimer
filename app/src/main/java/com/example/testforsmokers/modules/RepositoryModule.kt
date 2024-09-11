@@ -1,5 +1,7 @@
-package com.example.testforsmokers
+package com.example.testforsmokers.modules
 
+import com.example.testforsmokers.CigaretteRepository
+import com.example.testforsmokers.CigaretteRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

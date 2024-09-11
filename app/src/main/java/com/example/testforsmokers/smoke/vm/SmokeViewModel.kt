@@ -5,23 +5,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testforsmokers.CigaretteRepository
+import com.example.testforsmokers.TimerManager
 import com.example.testforsmokers.smoke.data.Cigarette
 import com.example.testforsmokers.smoke.data.CounterUpdate
 import com.example.testforsmokers.smoke.data.Timer
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.datetime.*
+import kotlinx.datetime.TimeZone
+import java.time.temporal.WeekFields
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class SmokeViewModel @Inject constructor(
-    private val repository: CigaretteRepository
+    private val repository: CigaretteRepository,
+    private val timerManager: TimerManager
 ) : ViewModel() {
-
-    private var timerStartTime: Long = 0L
-    private var isTimerRunning: Boolean = false
 
     private val _dayCigaretteCount = MutableLiveData<Int>()
     val dayCigaretteCount: LiveData<Int> get() = _dayCigaretteCount
@@ -35,6 +35,7 @@ class SmokeViewModel @Inject constructor(
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> get() = _timerText
 
+
     init {
         loadTimerState()
         updateCigaretteCount()
@@ -42,89 +43,44 @@ class SmokeViewModel @Inject constructor(
 
     fun smoke() {
         viewModelScope.launch {
-            if (isTimerRunning) {
-                resetTimer()
-            } else {
-                startTimer()
+            val startTime = System.currentTimeMillis()
+            timerManager.resetAndStartTimer { formattedTime ->
+                _timerText.postValue(formattedTime)
             }
-            repository.saveCigaretteEntry(Cigarette(timestamp = System.currentTimeMillis()))
+            repository.saveTimer(Timer(startTime = startTime, isRunning = true))
+            repository.saveCigaretteEntry(Cigarette(timestamp = startTime))
             updateCigaretteCount()
         }
-    }
-
-    private fun startTimer() {
-        isTimerRunning = true
-        timerStartTime = System.currentTimeMillis()
-        saveTimerState(Timer(startTime = timerStartTime, isRunning = isTimerRunning))
-        updateTimerText()
-
-        viewModelScope.launch {
-            while (isTimerRunning && isActive) {
-                updateTimerText()
-                delay(1000) // Update the timer text every second
-            }
-        }
-    }
-
-    private fun resetTimer() {
-        isTimerRunning = false
-        _timerText.value = "Timer: 00:00:00" // Reset display to zero
-        startTimer() // Restart the timer with the new start time
     }
 
     private fun loadTimerState() {
         viewModelScope.launch {
             val timer = repository.getTimer()
-            if (timer != null) {
-                isTimerRunning = timer.isRunning
-                if (isTimerRunning) {
-                    timerStartTime = timer.startTime
-                    resumeTimer()
-                } else {
-                    _timerText.value = "Timer: 00:00:00"
+            if (timer != null && timer.isRunning) {
+                timerManager.resumeTimer(timer.startTime) { formattedTime ->
+                    _timerText.postValue(formattedTime)
                 }
+            } else {
+                _timerText.value = "Timer: 00:00:00"
             }
         }
     }
-
-    private fun resumeTimer() {
-        viewModelScope.launch {
-            while (isTimerRunning && isActive) {
-                updateTimerText()
-                delay(1000) // Update the timer text every second
-            }
-        }
-    }
-
-    private fun updateTimerText() {
-        val currentTime = System.currentTimeMillis()
-        val elapsedTime = currentTime - timerStartTime
-        _timerText.value = formatElapsedTime(elapsedTime)
-    }
-
-    private fun saveTimerState(timer: Timer) {
-        viewModelScope.launch {
-            repository.saveTimer(timer)
-        }
-    }
-
-    private fun formatElapsedTime(elapsedTime: Long): String {
-        val seconds = (elapsedTime / 1000) % 60
-        val minutes = (elapsedTime / (1000 * 60)) % 60
-        val hours = (elapsedTime / (1000 * 60 * 60)) % 24
-        return String.format(Locale.getDefault(), "Timer: %02d:%02d:%02d", hours, minutes, seconds)
+    // Helper function to calculate week of the year
+    private fun LocalDate.getWeekOfYear(): Int {
+        val localDate = java.time.LocalDate.of(this.year, this.monthNumber, this.dayOfMonth)
+        return localDate.get(WeekFields.of(Locale.getDefault()).weekOfYear())
     }
 
     private fun updateCigaretteCount() {
         viewModelScope.launch {
-            val today = System.currentTimeMillis()
-            val currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)
-            val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
+            val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val currentWeek = today.getWeekOfYear()
+            val currentMonth = today.monthNumber
             var counterUpdate = repository.getCounterUpdate()
 
             if (counterUpdate == null) {
                 counterUpdate = CounterUpdate(
-                    lastDayUpdate = today,
+                    lastDayUpdate = Clock.System.now().toEpochMilliseconds(),
                     lastWeekUpdate = currentWeek,
                     lastMonthUpdate = currentMonth
                 )
@@ -134,12 +90,12 @@ class SmokeViewModel @Inject constructor(
             var updatedCounterUpdate = counterUpdate
 
             // Reset day count if the day has changed
-            val lastDayUpdate = Calendar.getInstance().apply { timeInMillis = counterUpdate.lastDayUpdate }
-            val currentDay = Calendar.getInstance().apply { timeInMillis = today }
+            val lastDayUpdate = Instant.fromEpochMilliseconds(counterUpdate.lastDayUpdate)
+                .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-            if (currentDay.get(Calendar.DAY_OF_YEAR) != lastDayUpdate.get(Calendar.DAY_OF_YEAR)) {
+            if (today != lastDayUpdate) {
                 _dayCigaretteCount.value = 0
-                updatedCounterUpdate = updatedCounterUpdate.copy(lastDayUpdate = today)
+                updatedCounterUpdate = updatedCounterUpdate.copy(lastDayUpdate = Clock.System.now().toEpochMilliseconds())
             } else {
                 _dayCigaretteCount.value = repository.getDayCigaretteCount()
             }
@@ -165,3 +121,5 @@ class SmokeViewModel @Inject constructor(
         }
     }
 }
+
+

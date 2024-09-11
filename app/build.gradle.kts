@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.testforsmokers"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -68,11 +68,17 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
+    //dateTime
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+
     //tests
     testImplementation ("androidx.arch.core:core-testing:2.2.0")
-    testImplementation ("org.mockito:mockito-core:4.8.0")
+    testImplementation (libs.mockito.core)
     testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation ("org.mockito:mockito-inline:5.4.0")
+    testImplementation("io.mockk:mockk:1.13.7")
+
+
+
 
 }
 
