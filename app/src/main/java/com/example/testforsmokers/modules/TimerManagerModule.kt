@@ -14,7 +14,7 @@ object TimerManagerModule {
 
     @Provides
     fun provideDispatcher(): CoroutineDispatcher {
-        return Dispatchers.Default // Or any other dispatcher you need
+        return Dispatchers.Default
     }
 
     @Provides

@@ -6,9 +6,9 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 interface CigaretteRepository {
-    suspend fun getDayCigaretteCount(): Int
-    suspend fun getWeekCigaretteCount(): Int
-    suspend fun getMonthCigaretteCount(): Int
+    suspend fun getDayCigaretteCount(): Int = 0
+    suspend fun getWeekCigaretteCount(): Int = 0
+    suspend fun getMonthCigaretteCount(): Int = 0
     suspend fun saveCigaretteEntry(cigaretteEntry: Cigarette)
     suspend fun saveTimer(timer: Timer)
     suspend fun getTimer(): Timer?

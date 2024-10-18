@@ -23,13 +23,13 @@ class SmokeViewModel @Inject constructor(
     private val timerManager: TimerManager
 ) : ViewModel() {
 
-    private val _dayCigaretteCount = MutableLiveData<Int>()
+    private val _dayCigaretteCount = MutableLiveData(0)
     val dayCigaretteCount: LiveData<Int> get() = _dayCigaretteCount
 
-    private val _weekCigaretteCount = MutableLiveData<Int>()
+    private val _weekCigaretteCount = MutableLiveData(0)
     val weekCigaretteCount: LiveData<Int> get() = _weekCigaretteCount
 
-    private val _monthCigaretteCount = MutableLiveData<Int>()
+    private val _monthCigaretteCount = MutableLiveData(0)
     val monthCigaretteCount: LiveData<Int> get() = _monthCigaretteCount
 
     private val _timerText = MutableLiveData<String>()
@@ -44,6 +44,7 @@ class SmokeViewModel @Inject constructor(
     fun smoke() {
         viewModelScope.launch {
             val startTime = System.currentTimeMillis()
+            val counterUpdate = repository.getCounterUpdate()
             timerManager.resetAndStartTimer { formattedTime ->
                 _timerText.postValue(formattedTime)
             }
@@ -71,7 +72,7 @@ class SmokeViewModel @Inject constructor(
         return localDate.get(WeekFields.of(Locale.getDefault()).weekOfYear())
     }
 
-    private fun updateCigaretteCount() {
+    fun updateCigaretteCount() {
         viewModelScope.launch {
             val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             val currentWeek = today.getWeekOfYear()
