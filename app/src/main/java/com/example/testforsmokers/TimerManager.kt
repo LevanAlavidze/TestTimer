@@ -40,10 +40,13 @@ class TimerManager @Inject constructor(
     }
 
 
-    private fun formatElapsedTime(elapsedTime: Long): String {
-        val seconds = (elapsedTime / 1000) % 60
+
+    fun formatElapsedTime(elapsedTime: Long): String {
+        val hours = elapsedTime / (1000 * 60 * 60)
         val minutes = (elapsedTime / (1000 * 60)) % 60
-        val hours = (elapsedTime / (1000 * 60 * 60)) % 24
+        val seconds = (elapsedTime / 1000) % 60
         return String.format(Locale.getDefault(), "Timer: %02d:%02d:%02d", hours, minutes, seconds)
     }
+
+
 }

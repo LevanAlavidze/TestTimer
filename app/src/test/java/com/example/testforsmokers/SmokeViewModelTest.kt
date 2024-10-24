@@ -4,6 +4,8 @@ package com.example.testforsmokers
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.testforsmokers.smoke.data.CounterUpdate
 import com.example.testforsmokers.smoke.vm.SmokeViewModel
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -21,6 +23,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import java.util.Locale
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -40,7 +43,7 @@ class SmokeViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        timeManager = mock(TimerManager::class.java)
+        timeManager = mockk()
         viewModel = SmokeViewModel(repository, timeManager)
     }
 
@@ -147,4 +150,24 @@ class SmokeViewModelTest {
         // Assert that the monthly counter has reset to 0
         assertEquals(0, viewModel.monthCigaretteCount.value)
     }
+
+    @Test
+    fun testInfiniteTimerWithKotlinxDateTime() = runTest {
+        // Simulate a long elapsed time using kotlinx-datetime
+        val now = Clock.System.now()
+        val longElapsedTime = now.plus(2555920000.hours)
+
+        // Calculate elapsed time
+        val elapsedTime = longElapsedTime.toEpochMilliseconds() - now.toEpochMilliseconds()
+
+        // Mocking the formatElapsedTime to return a proper value
+        every { timeManager.formatElapsedTime(elapsedTime) } returns "Timer: 2555920000:00:00"
+
+        // Invoke the actual method
+        val formattedOutput = timeManager.formatElapsedTime(elapsedTime)
+
+        // Check if the formatted output matches the expected value
+        assertEquals("Timer: 2555920000:00:00", formattedOutput)
+    }
+
 }
