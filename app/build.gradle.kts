@@ -1,28 +1,24 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
 android {
     namespace = "com.example.testforsmokers"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.testforsmokers"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    kapt {
-        arguments {
-            arg("room.schemaLocation", "$projectDir/schema")
-        }
-    }
+
 
     buildTypes {
         release {
@@ -41,7 +37,9 @@ android {
         jvmTarget = "1.8"
     }
 }
-
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas") // Specify schema directory for KSP
+}
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -57,11 +55,11 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.2")
     //DI
     implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    ksp("com.google.dagger:hilt-android-compiler:2.48")
 
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
     //Navigation
