@@ -12,7 +12,7 @@ import com.example.testforsmokers.smoke.data.TimerDao
 
 @Database(entities = [Cigarette::class, Timer::class, CounterUpdate::class],
     version = 4,
-    autoMigrations =[AutoMigration(from = 3,to =4)]
+    //autoMigrations = [AutoMigration(from = 4, to = 1)]
 )
 abstract class CigaretteDatabase : RoomDatabase() {
     abstract fun cigaretteDao(): CigaretteDao
