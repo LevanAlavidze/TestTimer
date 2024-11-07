@@ -8,7 +8,7 @@ import androidx.room.Update
 @Dao
 interface CounterUpdateDao {
 
-    @Query("SELECT * FROM counter_updates WHERE id = 1 LIMIT 1")
+    @Query("SELECT * FROM counter_updates WHERE id = 0 LIMIT 1")
     suspend fun getCounterUpdate(): CounterUpdate?
 
     @Insert

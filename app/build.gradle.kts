@@ -1,29 +1,29 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
 
 android {
     namespace = "com.example.testforsmokers"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.testforsmokers"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments["room.schemaLocation"] = "$projectDir/schemas"
-            }
+    }
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schema")
         }
     }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -41,10 +41,6 @@ android {
         jvmTarget = "1.8"
     }
 }
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas") // Specify schema directory for KSP
-}
-
 
 dependencies {
 
@@ -58,26 +54,31 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     //Fragment
-    implementation(libs.androidx.fragment.ktx)
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
     //DI
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     // Room
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 
     //Navigation
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
     //dateTime
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
     //tests
-    testImplementation (libs.androidx.core.testing)
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
     testImplementation (libs.mockito.core)
-    testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("io.mockk:mockk:1.13.7")
+
+
+
 
 }
+
